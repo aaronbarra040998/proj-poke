@@ -3,7 +3,6 @@
  */
 
 export const Storage = {
-  // Tema
   setTheme(theme) {
     try {
       localStorage.setItem('theme', theme);
@@ -24,7 +23,6 @@ export const Storage = {
     }
   },
   
-  // Vista del directorio
   setDirectoryView(view) {
     try {
       localStorage.setItem('directoryView', view);
@@ -44,14 +42,14 @@ export const Storage = {
     }
   },
   
-  // Favoritos de Pokémon
   togglePokemonFavorite(id) {
     try {
       const favorites = this.getFavorites();
-      const index = favorites.indexOf(id);
+      const numericId = parseInt(id);
       
+      const index = favorites.indexOf(numericId);
       if (index === -1) {
-        favorites.push(id);
+        favorites.push(numericId);
       } else {
         favorites.splice(index, 1);
       }
@@ -66,14 +64,14 @@ export const Storage = {
   
   getFavorites() {
     try {
-      return JSON.parse(localStorage.getItem('pokemonFavorites') || '[]');
+      const stored = JSON.parse(localStorage.getItem('pokemonFavorites') || '[]');
+      return stored.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0);
     } catch (error) {
       console.error('Error getting Pokémon favorites:', error);
       return [];
     }
   },
   
-  // Datos de Pokémon
   setPokemonData(pokemon) {
     try {
       localStorage.setItem('pokemonData', JSON.stringify(pokemon));
@@ -84,10 +82,13 @@ export const Storage = {
     }
   },
   
-  // ✅ MÉTODO CORREGIDO - ESTABA FALTANDO
   getPokemonData() {
     try {
-      return JSON.parse(localStorage.getItem('pokemonData') || '[]');
+      const data = JSON.parse(localStorage.getItem('pokemonData') || '[]');
+      return data.map(pokemon => ({
+        ...pokemon,
+        id: parseInt(pokemon.id)
+      }));
     } catch (error) {
       console.error('Error getting Pokémon data:', error);
       return [];
@@ -97,14 +98,13 @@ export const Storage = {
   getPokemonById(id) {
     try {
       const data = this.getPokemonData();
-      return data.find(p => p.id == id) || null;
+      return data.find(p => p.id === parseInt(id)) || null;
     } catch (error) {
       console.error('Error getting Pokémon by ID:', error);
       return null;
     }
   },
   
-  // Seguimiento de visitas
   setLastVisit() {
     try {
       localStorage.setItem('lastVisit', Date.now().toString());
@@ -124,7 +124,6 @@ export const Storage = {
     }
   },
   
-  // Datos del formulario
   saveFormData(data) {
     try {
       localStorage.setItem('formData', JSON.stringify(data));
